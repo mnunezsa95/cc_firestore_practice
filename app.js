@@ -48,19 +48,45 @@ try {
 
 // Retrieve all documents
 db.collection("cafes")
+  .orderBy("name")
   .get()
   .then((snapshot) =>
     snapshot.docs.forEach((doc) => {
-      renderCafe(doc);
+      console.log(doc.data());
     })
   );
 
 // Retrieve documents based on a specific value
 db.collection("cafes")
-  .where("city", "==", "Essex")
+  .where("city", "==", "Bronx, NY")
   .get()
   .then((snapshot) => {
     snapshot.docs.forEach((doc) => {
       console.log(doc.data());
+    });
+  });
+
+// Retrieve and order documents based on a specific value
+db.collection("cafes")
+  .orderBy("city")
+  .where("city", "==", "Essex, UK")
+  .get()
+  .then((snapshot) => {
+    snapshot.docs.forEach((doc) => {
+      console.log(doc.data());
+    });
+  });
+
+db.collection("cafes")
+  .orderBy("city")
+  .onSnapshot((snapshot) => {
+    let changes = snapshot.docChanges();
+    changes.forEach((change) => {
+      if (change.type == "added") {
+        renderCafe(change.doc);
+      } else if (change.type == "remove") {
+        let li = cafeList.querySelector("[data-id=" + change.doc.id + "]");
+        cafeList.removeChild(li);
+      }
     });
   });
